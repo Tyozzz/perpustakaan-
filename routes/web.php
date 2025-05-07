@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\BookController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
@@ -26,6 +28,14 @@ Route::middleware('auth')->group(function () {
     Route::resource('/permissions', PermissionController::class);
     // roles route
     Route::resource('roles', RoleController::class)->except('show');
+
+     // permissions route
+     Route::resource('/books', BookController::class);
+
+      // permissions route
+      Route::resource('/categories', CategoryController::class);
+
+
     // users route
     Route::resource('/users', UserController::class);
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

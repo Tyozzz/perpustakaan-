@@ -53,6 +53,24 @@ export default function AuthenticatedLayout({ header, children }) {
                                     </NavLink>
                                 }
 
+                                {hasAnyPermission(["books index"]) && (
+                                    <NavLink
+                                        href={route("books.index")}
+                                        active={route().current("books*")}
+                                    >
+                                        Books
+                                    </NavLink>
+                                     )}
+
+                                {hasAnyPermission(["categories index"]) && (
+                                    <NavLink
+                                        href={route("categories.index")}
+                                        active={route().current("categories*")}
+                                    >
+                                        Categories
+                                    </NavLink>
+                                     )}
+
                             </div>
                         </div>
 
@@ -180,6 +198,25 @@ export default function AuthenticatedLayout({ header, children }) {
                                 Users
                             </ResponsiveNavLink>
                         }
+
+                         {hasAnyPermission(["books index"]) && (
+                            <ResponsiveNavLink
+                                href={route("books.index")}
+                                active={route().current("books*")}
+                            >
+                                Books
+                            </ResponsiveNavLink>
+                        )}
+                         {hasAnyPermission(["categories index"]) && (
+                            <ResponsiveNavLink
+                                href={route("categories.index")}
+                                active={route().current("categories*")}
+                            >
+                                Categories
+                            </ResponsiveNavLink>
+                        )}
+
+
 
                     </div>
 
