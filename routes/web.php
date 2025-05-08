@@ -4,8 +4,12 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CollectionController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\BorrowingController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use App\Models\BookCategory;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -26,14 +30,26 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
     // permissions route
     Route::resource('/permissions', PermissionController::class);
+
     // roles route
     Route::resource('roles', RoleController::class)->except('show');
 
-     // permissions route
-     Route::resource('/books', BookController::class);
+     // permissions books
+     Route::resource('books', BookController::class);
 
-      // permissions route
+      // permissions categories
       Route::resource('/categories', CategoryController::class);
+
+      // permissions collections
+      Route::resource('/collections', CollectionController::class);
+
+       // permissions reviews
+       Route::resource('/reviews', ReviewController::class);
+
+       // permissions bookscategories
+       Route::resource('borrowings', BorrowingController::class);
+
+
 
 
     // users route

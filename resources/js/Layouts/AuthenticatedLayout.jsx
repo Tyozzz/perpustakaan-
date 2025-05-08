@@ -71,6 +71,33 @@ export default function AuthenticatedLayout({ header, children }) {
                                     </NavLink>
                                      )}
 
+                                {hasAnyPermission(["collections index"]) && (
+                                    <NavLink
+                                        href={route("collections.index")}
+                                        active={route().current("collections*")}
+                                    >
+                                        Collections
+                                    </NavLink>
+                                     )}
+
+                                {hasAnyPermission(["reviews index"]) && (
+                                    <NavLink
+                                        href={route("reviews.index")}
+                                        active={route().current("reviews*")}
+                                    >
+                                        Reviews
+                                    </NavLink>
+                                     )}
+
+                                {hasAnyPermission(["borrowings index"]) && (
+                                    <NavLink
+                                        href={route("borrowings.index")}
+                                        active={route().current("borrowings*")}
+                                    >
+                                        Borrowings
+                                    </NavLink>
+                                     )}
+
                             </div>
                         </div>
 
@@ -213,6 +240,33 @@ export default function AuthenticatedLayout({ header, children }) {
                                 active={route().current("categories*")}
                             >
                                 Categories
+                            </ResponsiveNavLink>
+                        )}
+
+                        {hasAnyPermission(["collections index"]) && (
+                            <ResponsiveNavLink
+                                href={route("collections.index")}
+                                active={route().current("collections*")}
+                            >
+                                Collections
+                            </ResponsiveNavLink>
+                        )}
+
+                        {hasAnyPermission(["reviews index"]) && (
+                            <ResponsiveNavLink
+                                href={route("reviews.index")}
+                                active={route().current("reviews*")}
+                            >
+                                Reviews
+                            </ResponsiveNavLink>
+                        )}
+
+                        {hasAnyPermission(["borrowings index"]) && (
+                            <ResponsiveNavLink
+                                href={route("borrowings.index")}
+                                active={route().current("borrowings*")}
+                            >
+                                Borrowings
                             </ResponsiveNavLink>
                         )}
 

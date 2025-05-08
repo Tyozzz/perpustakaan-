@@ -6,7 +6,6 @@ use App\Models\Book;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
-// use Spatie\Permission\Models\Permission;
 
 class BookController extends Controller implements HasMiddleware
 {
@@ -25,14 +24,18 @@ class BookController extends Controller implements HasMiddleware
      */
     public function index(Request $request)
     {
-        //  get permissions
-        $books = Book::select('id', 'name')
-            ->when($request->search,fn($search) => $search->where('name', 'like', '%'.$request->search.'%'))
+        $books = Book::query()
+            ->when($request->search, function ($query) use ($request) {
+                $query->where('title', 'like', '%' . $request->search . '%');
+            })
             ->latest()
-            ->paginate(6)->withQueryString();
+            ->paginate(10)
+            ->withQueryString();
 
-        // render view
-        return inertia('Books/Index', ['books' => $books,'filters' => $request->only(['search'])]);
+        return inertia('Books/Index', [
+            'books' => $books,
+            'filters' => $request->only(['search']),
+        ]);
     }
 
     /**
@@ -40,7 +43,6 @@ class BookController extends Controller implements HasMiddleware
      */
     public function create()
     {
-        // render view
         return inertia('Books/Create');
     }
 
@@ -49,13 +51,15 @@ class BookController extends Controller implements HasMiddleware
      */
     public function store(Request $request)
     {
-        // validate request
-        $request->validate(['name' => 'required|min:3|max:255|unique:books']);
+        $request->validate([
+            'title'     => 'required|string|max:255',
+            'author'    => 'required|string|max:255',
+            'publisher' => 'required|string|max:255',
+            'year'      => 'required|digits:4|integer|min:1000|max:' . (date('Y') + 1),
+        ]);
 
-        // create new permission data
-        Book::create(['name' => $request->name]);
+        Book::create($request->only(['title', 'author', 'publisher', 'year']));
 
-        // render view
         return to_route('books.index');
     }
 
@@ -64,7 +68,6 @@ class BookController extends Controller implements HasMiddleware
      */
     public function edit(Book $book)
     {
-        // render view
         return inertia('Books/Edit', ['book' => $book]);
     }
 
@@ -73,13 +76,15 @@ class BookController extends Controller implements HasMiddleware
      */
     public function update(Request $request, Book $book)
     {
-        // validate request
-        $request->validate(['name' => 'required|min:3|max:255|unique:books,name,'.$book->id]);
+        $request->validate([
+            'title'     => 'required|string|max:255',
+            'author'    => 'required|string|max:255',
+            'publisher' => 'required|string|max:255',
+            'year'      => 'required|digits:4|integer|min:1000|max:' . (date('Y') + 1),
+        ]);
 
-        // update permission data
-        $book->update(['name' => $request->name]);
+        $book->update($request->only(['title', 'author', 'publisher', 'year']));
 
-        // render view
         return to_route('books.index');
     }
 
@@ -88,10 +93,7 @@ class BookController extends Controller implements HasMiddleware
      */
     public function destroy(Book $book)
     {
-        // delete permissions data
         $book->delete();
-
-        // render view
         return back();
     }
 }
