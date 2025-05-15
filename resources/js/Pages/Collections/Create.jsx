@@ -7,15 +7,13 @@ import Button from '@/Components/Button';
 import Card from '@/Components/Card';
 import Swal from 'sweetalert2';
 
-export default function Create({ auth }) {
+export default function Create({ auth, users, books }) {
 
-    // define state with Inertia useForm
     const { data, setData, post, errors } = useForm({
-        user: '',
-        book: ''
+        user_id: '',
+        book_id: '',
     });
 
-    // define method to store data
     const handleStoreData = async (e) => {
         e.preventDefault();
 
@@ -23,7 +21,7 @@ export default function Create({ auth }) {
             onSuccess: () => {
                 Swal.fire({
                     title: 'Success!',
-                    text: 'Collection created successfully!',
+                    text: 'Data created successfully!',
                     icon: 'success',
                     showConfirmButton: false,
                     timer: 1500
@@ -39,31 +37,43 @@ export default function Create({ auth }) {
         >
             <Head title="Create Collection" />
             <Container>
-                <Card title="Create New Collection">
+                <Card title="Create new collection">
                     <form onSubmit={handleStoreData}>
                         <div className="mb-4">
-                            <Input 
-                                label="User" 
-                                type="text" 
-                                value={data.user} 
-                                onChange={e => setData('user', e.target.value)} 
-                                errors={errors.user} 
-                                placeholder="Enter user name..." 
-                            />
+                            <label className="block text-gray-700 mb-1">User</label>
+                            <select
+                                value={data.user_id}
+                                onChange={(e) => setData('user_id', e.target.value)}
+                                className="w-full border rounded p-2"
+                            >
+                                <option value="">-- Select User --</option>
+                                {users.map(user => (
+                                    <option key={user.id} value={user.id}>{user.name}</option>
+                                ))}
+                            </select>
+                            {errors.user_id && <div className="text-red-600 text-sm">{errors.user_id}</div>}
                         </div>
+
                         <div className="mb-4">
-                            <Input 
-                                label="Book" 
-                                type="text" 
-                                value={data.book} 
-                                onChange={e => setData('book', e.target.value)} 
-                                errors={errors.book} 
-                                placeholder="Enter book title..." 
-                            />
+                            <label className="block text-gray-700 mb-1">Book</label>
+                            <select
+                                value={data.book_id}
+                                onChange={(e) => setData('book_id', e.target.value)}
+                                className="w-full border rounded p-2"
+                            >
+                                <option value="">-- Select Book --</option>
+                                {books.map(book => (
+                                    <option key={book.id} value={book.id}>{book.title}</option>
+                                ))}
+                            </select>
+                            {errors.book_id && <div className="text-red-600 text-sm">{errors.book_id}</div>}
                         </div>
+
                         <div className="flex items-center gap-2">
                             <Button type="submit">Save</Button>
-                            <Button type="cancel" url={route('collections.index')}>Cancel</Button>
+                            <a href={route('collections.index')}>
+                                <Button type="button" variant="secondary">Cancel</Button>
+                            </a>
                         </div>
                     </form>
                 </Card>

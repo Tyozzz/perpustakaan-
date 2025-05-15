@@ -10,7 +10,6 @@ import hasAnyPermission from '@/Utils/Permissions';
 
 export default function Index({ auth }) {
 
-    // Ambil props collections & filters dari inertia
     const { collections, filters } = usePage().props;
 
     return (
@@ -47,8 +46,8 @@ export default function Index({ auth }) {
                             {collections.data.map((collection, i) => (
                                 <tr key={i}>
                                     <Table.Td>{++i + (collections.current_page - 1) * collections.per_page}</Table.Td>
-                                    <Table.Td>{collection.user}</Table.Td>
-                                    <Table.Td>{collection.book}</Table.Td>
+                                    <Table.Td>{collection.user?.name}</Table.Td>
+                                    <Table.Td>{collection.book?.title}</Table.Td>
                                     <Table.Td>{collection.created_at}</Table.Td>
                                     <Table.Td>
                                         <div className="flex items-center gap-2">

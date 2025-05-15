@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
-// use Spatie\Permission\Models\Permission;
+use Inertia\Inertia;
+use App\Models\User;
+use App\Models\Collection;
+use App\Models\Book;
 
 class CollectionController extends Controller implements HasMiddleware
 {
+    /**
+     * Middleware untuk kontrol hak akses berdasarkan permission.
+     */
     public static function middleware()
     {
         return [
@@ -21,77 +26,94 @@ class CollectionController extends Controller implements HasMiddleware
     }
 
     /**
-     * Display a listing of the resource.
+     * Menampilkan daftar koleksi (collections) dengan opsi pencarian.
      */
-    public function index(Request $request)
-    {
-        //  get permissions
-        $collections = Collection::select('id', 'name')
-            ->when($request->search,fn($search) => $search->where('name', 'like', '%'.$request->search.'%'))
-            ->latest()
-            ->paginate(6)->withQueryString();
+   public function index(Request $request)
+{
+    $collections = Collection::with(['user:id,name', 'book:id,title'])
+        ->when($request->search, function ($query) use ($request) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%');
+            })->orWhereHas('book', function ($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->search . '%');
+            });
+        })
+        ->latest()
+        ->paginate(6)
+        ->withQueryString();
 
-        // render view
-        return inertia('Collections/Index', ['collections' => $collections,'filters' => $request->only(['search'])]);
-    }
+    return Inertia::render('Collections/Index', [
+        'collections' => $collections,
+        'filters' => $request->only(['search']),
+    ]);
+}
 
     /**
-     * Show the form for creating a new resource.
+     * Menampilkan halaman form create.
      */
     public function create()
     {
-        // render view
-        return inertia('Collections/Create');
+        return Inertia::render('Collections/Create', [
+            'users' => User::select('id', 'name')->get(),
+            'books' => Book::select('id', 'title')->get(),
+        ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Menyimpan koleksi baru ke database.
      */
     public function store(Request $request)
     {
-        // validate request
-        $request->validate(['name' => 'required|min:3|max:255|unique:collections']);
+        $request->validate([
+            'user_id' => 'required|integer|exists:users,id',
+            'book_id' => 'required|integer|exists:books,id',
+        ]);
 
-        // create new permission data
-        Collection::create(['name' => $request->name]);
+        Collection::create([
+            'user_id' => $request->user_id,
+            'book_id' => $request->book_id,
+        ]);
 
-        // render view
-        return to_route('collections.index');
+        return to_route('collections.index')->with('success', 'Collection created successfully.');
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Menampilkan form edit untuk koleksi tertentu.
      */
     public function edit(Collection $collection)
     {
-        // render view
-        return inertia('Collections/Edit', ['collection' => $collection]);
+        return Inertia::render('Collections/Edit', [
+            'collection' => $collection,
+            'users' => User::select('id', 'name')->get(),
+            'books' => Book::select('id', 'title')->get(),
+        ]);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Mengupdate data koleksi di database.
      */
     public function update(Request $request, Collection $collection)
     {
-        // validate request
-        $request->validate(['name' => 'required|min:3|max:255|unique:collections,name,'.$collection->id]);
+        $request->validate([
+            'user_id' => 'required|integer|exists:users,id',
+            'book_id' => 'required|integer|exists:books,id',
+        ]);
 
-        // update permission data
-        $collection->update(['name' => $request->name]);
+        $collection->update([
+            'user_id' => $request->user_id,
+            'book_id' => $request->book_id,
+        ]);
 
-        // render view
-        return to_route('collections.index');
+        return to_route('collections.index')->with('success', 'Collection updated successfully.');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Menghapus koleksi dari database.
      */
     public function destroy(Collection $collection)
     {
-        // delete permissions data
         $collection->delete();
 
-        // render view
-        return back();
+        return to_route('collections.index')->with('success', 'Collection deleted successfully.');
     }
 }

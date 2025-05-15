@@ -41,14 +41,13 @@ Route::middleware('auth')->group(function () {
       Route::resource('/categories', CategoryController::class);
 
       // permissions collections
-      Route::resource('/collections', CollectionController::class);
+      Route::resource('collections', CollectionController::class);
 
        // permissions reviews
        Route::resource('/reviews', ReviewController::class);
 
        // permissions bookscategories
        Route::resource('borrowings', BorrowingController::class);
-
 
 
 

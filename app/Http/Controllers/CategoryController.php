@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
-// use Spatie\Permission\Models\Permission;
+use Inertia\Inertia;
+use App\Models\Category;
+use App\Models\Book;
 
 class CategoryController extends Controller implements HasMiddleware
 {
+    /**
+     * Define middleware untuk mengatur hak akses tiap metode.
+     */
     public static function middleware()
     {
         return [
@@ -21,11 +25,11 @@ class CategoryController extends Controller implements HasMiddleware
     }
 
     /**
-     * Display a listing of the resource.
+     * Display a listing of the books.
      */
     public function index(Request $request)
     {
-        //  get permissions
+        //  get categories
         $categories = Category::select('id', 'name')
             ->when($request->search,fn($search) => $search->where('name', 'like', '%'.$request->search.'%'))
             ->latest()
@@ -35,63 +39,61 @@ class CategoryController extends Controller implements HasMiddleware
         return inertia('Categories/Index', ['categories' => $categories,'filters' => $request->only(['search'])]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
-    {
-        // render view
-        return inertia('Categories/Create');
+    { 
+        return Inertia::render('Categories/Create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created category in storage.
      */
     public function store(Request $request)
     {
-        // validate request
-        $request->validate(['name' => 'required|min:3|max:255|unique:categories']);
+        $request->validate([
+            'name' => 'required|min:3|max:255',
+        ]);
 
-        // create new permission data
-        Category::create(['name' => $request->name]);
+        Category::create([
+            'name' => $request->name,
+        ]);
 
-        // render view
-        return to_route('categories.index');
+        return to_route('categories.index')->with('success', 'Categories created successfully.');
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing the specified cetegory.
      */
     public function edit(Category $category)
     {
-        // render view
-        return inertia('Categories/Edit', ['category' => $category]);
+        return Inertia::render('Categories/Edit', [
+            'category' => $category,
+        ]);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified book in storage.
      */
     public function update(Request $request, Category $category)
     {
-        // validate request
-        $request->validate(['name' => 'required|min:3|max:255|unique:categories,name,'.$category->id]);
+        $request->validate([
+            'name' => 'required|min:3|max:255',
+        ]);
 
-        // update permission data
-        $category->update(['name' => $request->name]);
+        $category->update([
+            'name' => $request->name,
+        ]);
 
-        // render view
-        return to_route('categories.index');
+        return to_route('categories.index')->with('success', 'Category updated successfully.');
     }
+   
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified book from storage.
      */
-    public function destroy(Category $category)
+    public function destroy( Category $category)
     {
-        // delete permissions data
         $category->delete();
 
-        // render view
-        return back();
+        return to_route('categories.index')->with('success', 'Category deleted successfully.');
     }
 }
